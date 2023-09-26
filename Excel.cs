@@ -6,13 +6,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 using Excel = Microsoft.Office.Interop.Excel;       //microsoft Excel 14 object in references-> COM tab
 
 namespace ExcelSpace {
     public class ExcelFileReading {
         // Properties:
-        public string fileName;
-
         Excel.Application xlApp;
         Excel.Workbook xlWorkbook;
         Excel.Worksheet xlWorksheet;
@@ -25,12 +24,18 @@ namespace ExcelSpace {
             xlWorkbook = xlApp.Workbooks.Open(fileName);
         }
 
+        // Destructor:
+        ~ExcelFileReading() {
+            xlWorkbook.Save();
+            xlWorkbook.Close();
+            Marshal.ReleaseComObject(xlWorkbook);
+        }
+
         // Methods:
         public List<string> getExcelColumn(int sheet, int col) {
             xlWorksheet = xlWorkbook.Sheets[sheet];
             xlRange = xlWorksheet.UsedRange;
             int rowCount = xlRange.Rows.Count;
-            int colCount = xlRange.Columns.Count;
 
             List<string> column = new List<string>();
             for(int i = 1; i < rowCount; i++) {
@@ -56,6 +61,37 @@ namespace ExcelSpace {
             coords[0] = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor).Row;
             coords[1] = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor).Column;
             return coords;
+        }
+        public void Release() {
+            // Will probably make the instance calling this useless
+            xlWorkbook.Save();
+            xlWorkbook.Close();
+            Marshal.ReleaseComObject(xlWorkbook);
+        }
+    }
+    public class ExcelFileWriting {
+        Excel.Application xlApp;
+        Excel.Workbook xlWorkbook;
+        Excel.Worksheet xlWorksheet;
+        Excel.Range xlRange;
+
+        // Constructor:
+        public ExcelFileWriting(string fileName, Excel.Application application) {
+            xlApp = application;
+            xlWorkbook = xlApp.Workbooks.Open(fileName);
+        }
+
+        // Destructor:
+        ~ExcelFileWriting() {
+
+        }
+
+        // Methods:
+        public void Release()
+        {
+            xlWorkbook.Save();
+            xlWorkbook.Close();
+            Marshal.ReleaseComObject(xlWorkbook);
         }
     }
 }
