@@ -38,11 +38,11 @@ namespace ExcelSpace {
             int rowCount = xlRange.Rows.Count;
 
             List<string> column = new List<string>();
-            for(int i = 1; i < rowCount; i++) {
+            for (int i = 1; i < rowCount; i++) {
                 column.Add(xlRange.Cells[i, col].Value2.ToString());
             }
             return column;
-        }
+            }
         public List<string> getExcelRow(int sheet, int row)
         {
             xlWorksheet = xlWorkbook.Sheets[sheet];
@@ -83,15 +83,19 @@ namespace ExcelSpace {
 
         // Destructor:
         ~ExcelFileWriting() {
-
+            xlWorkbook.Save();
+            xlWorkbook.Close();
+            Marshal.ReleaseComObject(xlWorkbook);
         }
 
         // Methods:
         public void Release()
         {
+            // Will probably make the instance calling this useless
             xlWorkbook.Save();
             xlWorkbook.Close();
             Marshal.ReleaseComObject(xlWorkbook);
         }
+        public void Write(int sheet, )
     }
 }
