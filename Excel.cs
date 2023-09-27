@@ -17,7 +17,7 @@ namespace ExcelSpace {
         Excel.Worksheet xlWorksheet;
         Excel.Range xlRange;
 
-        new ArgumentOutOfRangeException tooFewSheets = new ArgumentOutOfRangeException("", "The desired sheet does not exist!");
+        ArgumentOutOfRangeException tooFewSheets = new ArgumentOutOfRangeException("", "The desired sheet does not exist!");
 
         // Constructor:
         public ExcelFileHandling(string fileName, Excel.Application application) {
@@ -45,7 +45,8 @@ namespace ExcelSpace {
                 List<string> column = new List<string>();
                 for (int i = 1; i < rowCount; i++)
                 {
-                    column.Add(xlRange.Cells[i, col].Value2.ToString());
+                    if (xlRange.Cells[i, col].Value2 != null) column.Add(xlRange.Cells[i, col].Value2.ToString());
+                    else continue;
                 }
                 return column;
             }
@@ -79,8 +80,9 @@ namespace ExcelSpace {
             if (xlWorkbook.Sheets.Count >= sheet)
             {
                 int[] coords = new int[2];
-                coords[0] = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor).Row;
-                coords[1] = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor).Column;
+                Excel.Range location = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor);
+                coords[0] = location.Row - 1;
+                coords[1] = location.Column - 1;
                 return coords;
             }
             else
@@ -95,7 +97,8 @@ namespace ExcelSpace {
         {
             if (xlWorkbook.Sheets.Count >= sheet)
             {
-                
+                xlWorkbook.Worksheets[sheet].Cells[coords[0], coords[1]].Value = value;
+                xlWorkbook.Save();
                 return;
             }
             else
@@ -104,19 +107,41 @@ namespace ExcelSpace {
                 WriteCell(sheet, coords, value);
             }
         }
-        public void WriteColumn(int sheet, int[] coords, List<object> values)
+        public void WriteColumn(int sheet, int[] startCell, List<object> values)
         {
-            for(int i = coords[0]; i < coords[0] + values.Count; i++)
+            if (xlWorkbook.Sheets.Count >= sheet)
             {
-
+                for(int i = 0; i < values.Count; i++)
+                {
+                    WriteCell(sheet, new int[] { i + startCell[0], startCell[1] }, values[i]);
+                }
+                return;
             }
-        }
-        public void WriteColumn(int sheet, int[] coords, List<object> values, bool reversed)
-        {
-            if(!reversed) {WriteColumn(sheet, coords, values);}
             else
             {
-
+                xlWorkbook.Sheets.Add();
+                WriteColumn(sheet, startCell, values);
+            }
+        }
+        public void WriteColumn(int sheet, int[] startCell, List<object> values, bool reversed)
+        {
+            if (xlWorkbook.Sheets.Count >= sheet && reversed)
+            {
+                WriteColumn(sheet, startCell, values);
+                return;
+            }
+            else if(xlWorkbook.Sheets.Count >= sheet)
+            {
+                for (int i = values.Count - 1; i >= 0; i--)
+                {
+                    WriteCell(sheet, new int[] { i + startCell[0], startCell[1] }, values[i]);
+                }
+                return;
+            }
+            else
+            {
+                xlWorkbook.Sheets.Add();
+                WriteColumn(sheet, startCell, values, reversed);
             }
         }
 
@@ -126,6 +151,18 @@ namespace ExcelSpace {
             xlWorkbook.Save();
             xlWorkbook.Close();
             Marshal.ReleaseComObject(xlWorkbook);
+        }
+    }
+    public class LærerPar
+    {
+        public int møder;
+        public string lærer1;
+        public string lærer2;
+        public LærerPar(int møder, string lærer1, string lærer2)
+        {
+            this.møder = møder;
+            this.lærer1 = lærer1;
+            this.lærer2 = lærer2;
         }
     }
 }
