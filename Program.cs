@@ -14,11 +14,8 @@ Excel.Application xlApp = new Excel.Application();
 
 string fileName = "C:\\VSC_PRO_B\\VejlederMatrix\\VejlederMatrix.xlsx";
 
-ExcelFileReading exFileReader  = new ExcelFileReading(fileName, xlApp);
-int[] coords = exFileReader.Find(1, "Vejleder1");
-exFileReader.Release();
-
-Console.WriteLine($"Række: {coords[0]}\nKolonne: {coords[1]}");
+ExcelFileHandling exFileReader  = new ExcelFileHandling(fileName, xlApp);
+List<string> rowFive = exFileReader.GetExcelRow(5, 5);
 
 // Prøv at hoppe af appen:
 xlApp.Quit();
