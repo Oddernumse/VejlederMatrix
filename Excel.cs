@@ -13,7 +13,7 @@ namespace ExcelSpace {
     public class ExcelFileHandling {
         // Properties:
         Excel.Application xlApp;
-        Excel.Workbook xlWorkbook;
+        public Excel.Workbook xlWorkbook;
         Excel.Worksheet xlWorksheet;
         Excel.Range xlRange;
 
@@ -34,63 +34,7 @@ namespace ExcelSpace {
         }
 
         // Read methods:
-        public List<string> GetExcelColumn(int sheet, int col)
-        {
-            if (xlWorkbook.Sheets.Count >= sheet)
-            {
-                xlWorksheet = xlWorkbook.Sheets[sheet];
-                xlRange = xlWorksheet.UsedRange;
-                int rowCount = xlRange.Rows.Count;
-
-                List<string> column = new List<string>();
-                for (int i = 1; i < rowCount; i++)
-                {
-                    if (xlRange.Cells[i, col].Value2 != null) column.Add(xlRange.Cells[i, col].Value2.ToString());
-                    else continue;
-                }
-                return column;
-            }
-            else
-            {
-                throw tooFewSheets;
-            }
-        }
-        public List<string> GetExcelRow(int sheet, int row)
-        {
-            if (xlWorkbook.Sheets.Count >= sheet)
-            {
-                xlWorksheet = xlWorkbook.Sheets[sheet];
-                xlRange = xlWorksheet.UsedRange;
-                int colCount = xlRange.Columns.Count;
-
-                List<string> column = new List<string>();
-                for (int i = 1; i < colCount; i++)
-                {
-                    column.Add(xlRange.Cells[i, row].Value2.ToString());
-                }
-                return column;
-            }
-            else
-            {
-                throw tooFewSheets;
-            }
-            
-        }
-        public int[] Find(int sheet, string lookFor) {
-            if (xlWorkbook.Sheets.Count >= sheet)
-            {
-                int[] coords = new int[2];
-                Excel.Range location = xlWorkbook.Worksheets[sheet].UsedRange.Find(lookFor);
-                coords[0] = location.Row - 1;
-                coords[1] = location.Column - 1;
-                return coords;
-            }
-            else
-            {
-                throw tooFewSheets;
-            }
-            
-        }
+        
 
         // Write methods:
         public void WriteCell(int sheet, int[] coords, object value)
