@@ -23,11 +23,11 @@ Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fileName);
 Console.Clear();
 Dictionary<string, bool> tilgængeligeLærere = new Dictionary<string, bool>();
 List<LærerPar> lærerPar = new List<LærerPar> ();
-List<Dictionary<string, bool>> plan = new List<Dictionary<string, bool>>();
+List<Dictionary<LærerPar, bool>> plan = new List<Dictionary<LærerPar, bool>>();
 
 Console.WriteLine("På hvilket ark (nr.) ligger dataene?");
-int dataRangeNr = Int32.Parse(Console.ReadLine());
-Excel.Worksheet datasheet = xlWorkbook.Sheets[dataRangeNr];
+int dataSheetN = Int32.Parse(Console.ReadLine());
+Excel.Worksheet datasheet = xlWorkbook.Sheets[dataSheetN];
 Excel.Range dataRange = datasheet.UsedRange;
 Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
 int dataColumn1 = Int32.Parse(Console.ReadLine()) - 2;
@@ -48,26 +48,65 @@ for(int i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeL�
 bool planlægning = false;
 for (int blok = 0; !planlægning; blok++)
 {
-    LærerPar emptyPar = new LærerPar(0, "", "");
+    plan.Add(new Dictionary<LærerPar, bool> ());
     planlægning = true;
     bool blokDone = false;
+    foreach (LærerPar par in lærerPar)
+    {
+        plan[blok].Add(par, false);
+    }
     while (!blokDone)
     {
+        blokDone = true;
         int maksMøder = 0;
-        int n = 0;
+        int lærerN = 0;
         foreach (LærerPar par in lærerPar)
         {
-            if (par.møder == 0) lærerPar.Remove(par);
-            else if (par.møder > maksMøder)
+            if (par.møder > maksMøder && !tilgængeligeLærere[par.lærer1] && !tilgængeligeLærere[par.lærer2])
             {
                 maksMøder = par.møder;
-                n = lærerPar.IndexOf(par);
+                lærerN= lærerPar.IndexOf(par);
                 planlægning = false;
+                blokDone = false;
             }
         }
-        lærerPar[n]
+
+        plan[blok][lærerPar[lærerN]] = true;
+
+        foreach (string fork in tilgængeligeLærere.Keys)
+        {
+            if (fork == lærerPar[lærerN].lærer1 || fork == lærerPar[lærerN].lærer2)
+            {
+                tilgængeligeLærere[fork] = false;
+            }
+        }
     }
 }
+
+Excel.Worksheet printSheet = datasheet;
+bool printExists = false;
+foreach(Excel.Worksheet sheet in xlWorkbook.Sheets)
+{
+    if(sheet.Name == "Resultat")
+    {
+        printExists = true;
+        printSheet = sheet;
+        break;
+    }
+}
+if (!printExists) { xlWorkbook.Sheets.Add(); int printSheetN = xlWorkbook.Sheets.Count - 1; printSheet = xlWorkbook.Sheets[printSheetN]; printSheet.Name = "Resultat"; }
+Excel.Range printRange = printSheet.UsedRange;
+
+printRange[1, 1].Value = "Vejleder 1:";
+printRange[1, 2].Value = "Vejleder 2:";
+
+int i = 2;
+foreach (LærerPar par in lærerPar)
+{
+
+    i++;
+}
+
 // Prøv at hoppe af appen:
 foreach(Excel.Workbook book in xlApp.Workbooks)
 {
