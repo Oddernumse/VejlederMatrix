@@ -21,6 +21,7 @@ namespace Select
         public static void SelectSheet(Sheets options, ref int n, string message)
         {
             if (n < 1 || n > options.Count) n = 1;
+            Console.CursorVisible = false;
             while (true)
             {
                 Console.Clear();
@@ -35,6 +36,7 @@ namespace Select
                 ConsoleKey input = Console.ReadKey().Key;
                 if(input == ConsoleKey.Enter)
                 {
+                    Console.CursorVisible = true;
                     break;
                 }
                 switch(input)
@@ -52,6 +54,7 @@ namespace Select
             List<string> options = new List<string>();
             int n = 0;
             string path;
+            Console.CursorVisible = false;
             while (true)
             {
                 options.Clear();
@@ -81,6 +84,7 @@ namespace Select
                         if(end == "xlsx")
                         {
                             path = options[n];
+                            Console.CursorVisible = true;
                             return path;
                         }
                         else
@@ -99,6 +103,7 @@ namespace Select
                         {
                             CurrentDir = previousDir.Last();
                             previousDir.RemoveAt(previousDir.Count - 1);
+                            n = 0;
                         }
                         break;
                 }
