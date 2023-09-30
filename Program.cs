@@ -1,4 +1,5 @@
 ﻿using ExcelSpace;
+using Select;
 using Excel = Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
@@ -10,29 +11,30 @@ using System.Threading.Tasks;
 using static System.Reflection.Metadata.BlobBuilder;
 using Microsoft.Office.Interop.Excel;
 
-// Åbn excel-filen (der læses og skrives fra samme fil):
+// -------------- Åbn excel-filen (der læses og skrives fra samme fil): --------------
 Excel.Application xlApp = new Excel.Application();
 
-Console.WriteLine("Hvad hedder filen? (Husk store og små bogstaver!");
-string fileSearch = Console.ReadLine();
-IEnumerable<string> fileNames = Directory.EnumerateFiles("C:\\VSC_PRO_B", fileSearch + ".xlsx", SearchOption.AllDirectories);
-string fileName = fileNames.First();
+Console.WriteLine("Kopier filens sti ind herunder:");
+string fileName = Console.ReadLine();
 Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fileName);
 
-// Selve programmet:
+// -------------- Selve programmet: --------------
 Console.Clear();
+Console.ResetColor();
+int i;
 Dictionary<string, bool> tilgængeligeLærere = new Dictionary<string, bool>();
 List<LærerPar> lærerPar = new List<LærerPar> ();
 List<Dictionary<LærerPar, bool>> plan = new List<Dictionary<LærerPar, bool>>();
 
-Console.WriteLine("På hvilket ark (nr.) ligger dataene?");
-int dataSheetN = Int32.Parse(Console.ReadLine());
-Excel.Worksheet datasheet = xlWorkbook.Sheets[dataSheetN];
+// Find arket med dataene
+int arkN = 1;
+ExcelSelect.SelectSheet(xlWorkbook.Sheets, ref arkN, "På hvilket ark ligger dataene?");
+Excel.Worksheet datasheet = xlWorkbook.Worksheets[arkN];
 Excel.Range dataRange = datasheet.UsedRange;
 Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
 int dataColumn1 = Int32.Parse(Console.ReadLine()) - 2;
 
-for(int i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærere.Count == 0 ; i++)
+for(i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærere.Count == 0 ; i++)
 {
     object lærer1 = dataRange.Cells[i, dataColumn1].Value2;
     if (lærer1.ToString().Length <= 4)
@@ -100,15 +102,31 @@ Excel.Range printRange = printSheet.UsedRange;
 printRange[1, 1].Value = "Vejleder 1:";
 printRange[1, 2].Value = "Vejleder 2:";
 
-int i = 2;
+i = 2;
 foreach (LærerPar par in lærerPar)
 {
-
+    printRange[i, 1] = par.lærer1;
+    printRange[i, 2] = par.lærer2;
     i++;
 }
 
-// Prøv at hoppe af appen:
-foreach(Excel.Workbook book in xlApp.Workbooks)
+Console.WriteLine("Møder: " + plan.Count);
+
+for(i  = 0; i < plan.Count; i++)
+{
+    int row = 2;
+    foreach(LærerPar planpar in plan[i].Keys)
+    {
+        if (plan[i][planpar] == true)
+        {
+            printRange[row, i + 3].Value = $"Optaget ({planpar.lærer1} og {planpar.lærer2})";
+        }
+        row++;
+    }
+}
+
+// -------------- Prøv at hoppe af appen: --------------
+foreach (Excel.Workbook book in xlApp.Workbooks)
 {
     foreach(Excel.Worksheet sheet in book.Worksheets)
     {
