@@ -13,9 +13,7 @@ using Microsoft.Office.Interop.Excel;
 
 // -------------- Åbn excel-filen (der læses og skrives fra samme fil): --------------
 Excel.Application xlApp = new Excel.Application();
-
-Console.WriteLine("Kopier filens sti ind herunder:");
-string fileName = Console.ReadLine();
+string fileName = ExcelSelect.SelectFile("C:\\", "Vælg venligst Excel-filen");
 Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fileName);
 
 // -------------- Selve programmet: --------------
@@ -47,44 +45,10 @@ for(i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærer
     }
 }
 
-bool planlægning = false;
-for (int blok = 0; !planlægning; blok++)
-{
-    plan.Add(new Dictionary<LærerPar, bool> ());
-    planlægning = true;
-    bool blokDone = false;
-    foreach (LærerPar par in lærerPar)
-    {
-        plan[blok].Add(par, false);
-    }
-    while (!blokDone)
-    {
-        blokDone = true;
-        int maksMøder = 0;
-        int lærerN = 0;
-        foreach (LærerPar par in lærerPar)
-        {
-            if (par.møder > maksMøder && !tilgængeligeLærere[par.lærer1] && !tilgængeligeLærere[par.lærer2])
-            {
-                maksMøder = par.møder;
-                lærerN= lærerPar.IndexOf(par);
-                planlægning = false;
-                blokDone = false;
-            }
-        }
+// Make a plan:
 
-        plan[blok][lærerPar[lærerN]] = true;
 
-        foreach (string fork in tilgængeligeLærere.Keys)
-        {
-            if (fork == lærerPar[lærerN].lærer1 || fork == lærerPar[lærerN].lærer2)
-            {
-                tilgængeligeLærere[fork] = false;
-            }
-        }
-    }
-}
-
+// Print the plan:
 Excel.Worksheet printSheet = datasheet;
 bool printExists = false;
 foreach(Excel.Worksheet sheet in xlWorkbook.Sheets)
@@ -125,7 +89,7 @@ for(i  = 0; i < plan.Count; i++)
     }
 }
 
-// -------------- Prøv at hoppe af appen: --------------
+// -------------- Prøv at hoppe af appen (KILL THE PLAN): --------------
 foreach (Excel.Workbook book in xlApp.Workbooks)
 {
     foreach(Excel.Worksheet sheet in book.Worksheets)

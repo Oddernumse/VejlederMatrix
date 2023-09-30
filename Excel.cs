@@ -46,5 +46,60 @@ namespace Select
                 }
             }
         }
+        public static string SelectFile(string CurrentDir, string message)
+        {
+            List<string> previousDir = new List<string>();
+            List<string> options = new List<string>();
+            int n = 0;
+            string path;
+            while (true)
+            {
+                options.Clear();
+                string[] dirs = Directory.GetDirectories(CurrentDir);
+                string[] files = Directory.GetFiles(CurrentDir);
+                options.AddRange(dirs);
+                options.AddRange(files);
+                Console.Clear();
+                Console.WriteLine(message + "\n");
+                foreach (string option in options)
+                {
+                    if (option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
+                    Console.WriteLine(option);
+                    Console.ResetColor();
+
+                }
+                ConsoleKey input = Console.ReadKey().Key;
+                switch (input)
+                {
+                    case ConsoleKey.UpArrow: if (n > 0) n--; break;
+                    case ConsoleKey.DownArrow: if (n < options.Count - 1) n++; break;
+                    case ConsoleKey.LeftArrow: n = 0; break;
+                    case ConsoleKey.RightArrow: n = options.Count - 1; break;
+
+                    case ConsoleKey.Enter: 
+                        string end = options[n].Substring(options[n].Length - 4);
+                        if(end == "xlsx")
+                        {
+                            path = options[n];
+                            return path;
+                        }
+                        else
+                        {
+                            previousDir.Add(CurrentDir);
+                            CurrentDir = options[n];
+                            n = 0;
+                        }
+                        break;
+
+                    case ConsoleKey.Escape:
+                        if (previousDir.Count > 0)
+                        {
+                            CurrentDir = previousDir.Last();
+                            previousDir.RemoveAt(previousDir.Count - 1);
+                        }
+                        break;
+                }
+            }
+        }
     }
 }
