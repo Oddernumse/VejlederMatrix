@@ -85,9 +85,12 @@ namespace Select
                         }
                         else
                         {
-                            previousDir.Add(CurrentDir);
-                            CurrentDir = options[n];
-                            n = 0;
+                            if (!options[n].Contains('.'))
+                            {
+                                previousDir.Add(CurrentDir);
+                                CurrentDir = options[n];
+                                n = 0;
+                            }
                         }
                         break;
 
