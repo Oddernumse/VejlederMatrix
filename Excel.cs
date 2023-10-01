@@ -48,7 +48,7 @@ namespace Select
                 }
             }
         }
-        public static string SelectFile(string CurrentDir, string message)
+        public static string SelectFile(string currentDir, string message)
         {
             List<string> previousDir = new List<string>();
             List<string> options = new List<string>();
@@ -58,8 +58,8 @@ namespace Select
             while (true)
             {
                 options.Clear();
-                string[] dirs = Directory.GetDirectories(CurrentDir);
-                string[] files = Directory.GetFiles(CurrentDir);
+                string[] dirs = Directory.GetDirectories(currentDir);
+                string[] files = Directory.GetFiles(currentDir);
                 options.AddRange(dirs);
                 options.AddRange(files);
                 Console.Clear();
@@ -67,7 +67,7 @@ namespace Select
                 foreach (string option in options)
                 {
                     if (option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
-                    Console.WriteLine(option.Replace(currentDir, "."));
+                    Console.WriteLine(option.Replace(currentDir, ""));
                     Console.ResetColor();
 
                 }
@@ -91,8 +91,8 @@ namespace Select
                         {
                             if (!options[n].Contains('.'))
                             {
-                                previousDir.Add(CurrentDir);
-                                CurrentDir = options[n];
+                                previousDir.Add(currentDir);
+                                currentDir = options[n];
                                 n = 0;
                             }
                         }
@@ -101,7 +101,7 @@ namespace Select
                     case ConsoleKey.Escape:
                         if (previousDir.Count > 0)
                         {
-                            CurrentDir = previousDir.Last();
+                            currentDir = previousDir.Last();
                             previousDir.RemoveAt(previousDir.Count - 1);
                             n = 0;
                         }

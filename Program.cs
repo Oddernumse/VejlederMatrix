@@ -45,10 +45,59 @@ for(i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærer
     }
 }
 
-// Make a plan:
+// Lav en plan:
+bool planlægning = false;
+for(int blok = 0; !planlægning; blok++)
+{
+    planlægning = true;
+    plan.Add(new Dictionary<LærerPar, bool> ());
 
+    // Gør alle lærere tilgængelige igen:
+    foreach(KeyValuePair<string, bool> pair in tilgængeligeLærere)
+    {
+        tilgængeligeLærere[pair.Key] = true;
+    }
 
-// Print the plan:
+    // Lav en blok
+    plan[blok].Clear();
+    while(true)
+    {
+        LærerPar prioPar = new LærerPar(-1, "", "");
+        foreach (LærerPar par in lærerPar)
+        {
+            try
+            {
+                plan[blok].Add(par, false);
+            } catch
+            {
+
+            }
+        }
+        foreach (LærerPar par in lærerPar)
+        {
+            if (par.møder > prioPar.møder && par.møder > 0 && tilgængeligeLærere[par.lærer1] && tilgængeligeLærere[par.lærer2])
+            {
+                prioPar = par;
+            }
+        }
+        if(prioPar.møder == -1) break;
+        else
+        {
+            tilgængeligeLærere[prioPar.lærer1] = false;
+            tilgængeligeLærere[prioPar.lærer2] = false;
+            plan[blok][prioPar] = true;
+            lærerPar[lærerPar.IndexOf(prioPar)].møder--;
+        }
+    }
+
+    // Tjek om alle lærere er blevet tildelt møder:
+    foreach(LærerPar par in lærerPar)
+    {
+        if(par.møder > 0) planlægning = false;
+    }
+}
+
+// Print planen:
 Excel.Worksheet printSheet = datasheet;
 bool printExists = false;
 foreach(Excel.Worksheet sheet in xlWorkbook.Sheets)
@@ -69,7 +118,9 @@ printRange[1, 2].Value = "Vejleder 2:";
 i = 2;
 foreach (LærerPar par in lærerPar)
 {
+    printRange[i, 1].Clear();
     printRange[i, 1] = par.lærer1;
+    printRange[i, 2].Clear();
     printRange[i, 2] = par.lærer2;
     i++;
 }
@@ -83,13 +134,14 @@ for(i  = 0; i < plan.Count; i++)
     {
         if (plan[i][planpar] == true)
         {
-            printRange[row, i + 3].Value = $"Optaget ({planpar.lærer1} og {planpar.lærer2})";
+            printRange[row, i + 3].Clear();
+            printRange[row, i + 3].Value = "Optaget";
         }
         row++;
     }
 }
 
-// -------------- Prøv at hoppe af appen (KILL THE PLAN): --------------
+// -------------- Prøv at hoppe af appen (DRÆB PLANEN): --------------
 foreach (Excel.Workbook book in xlApp.Workbooks)
 {
     foreach(Excel.Worksheet sheet in book.Worksheets)
