@@ -67,7 +67,7 @@ namespace Select
                 foreach (string option in options)
                 {
                     if (option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
-                    Console.WriteLine(option);
+                    Console.WriteLine(option.Replace(currentDir, "."));
                     Console.ResetColor();
 
                 }
