@@ -1,15 +1,7 @@
 ﻿using ExcelSpace;
 using Select;
 using Excel = Microsoft.Office.Interop.Excel;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Reflection.Metadata.BlobBuilder;
-using Microsoft.Office.Interop.Excel;
 
 // -------------- Åbn excel-filen (der læses og skrives fra samme fil): --------------
 Excel.Application xlApp = new Excel.Application();
