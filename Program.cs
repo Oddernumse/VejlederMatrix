@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 // -------------- Åbn excel-filen (der læses og skrives fra samme fil): --------------
 Excel.Application xlApp = new Excel.Application();
-string fileName = ExcelSelect.SelectFile("C:\\", "Vælg venligst Excel-filen");
+string fileName = ExcelSelect.SelectFile("C:\\", "Vælg venligst Excel-filen (Brug piletasterne):");
 Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fileName);
 
 
@@ -40,7 +40,6 @@ for(i = 1; i < dataRange.Rows.Count; i++)
         if (!tilgængeligeLærere.ContainsKey(lærer1.ToString())) tilgængeligeLærere.Add(lærer1.ToString(), true);
         if (!tilgængeligeLærere.ContainsKey(lærer2.ToString())) tilgængeligeLærere.Add(lærer2.ToString(), true);
         lærerPar.Add(new LærerPar(møder, lærer1.ToString(), lærer2.ToString()));
-        Console.WriteLine("Par tilføjet");
     }
 }
 
@@ -109,7 +108,20 @@ foreach (Excel.Worksheet sheet in xlWorkbook.Sheets)
         break;
     }
 }
-if (!printExists) { xlWorkbook.Sheets.Add(); int printSheetN = xlWorkbook.Sheets.Count - 1; printSheet = xlWorkbook.Sheets[printSheetN]; printSheet.Name = "Resultat"; }
+if (!printExists) {
+    xlWorkbook.Sheets.Add();
+    int printSheetN = 0;
+    foreach (Excel.Worksheet sheet in xlWorkbook.Sheets)
+    {
+        if (sheet.Name.StartsWith("Ark") || sheet.Name.StartsWith("Sheet"))
+        {
+            break;
+        }
+        printSheetN++;
+    }
+    printSheet = xlWorkbook.Sheets[printSheetN + 1]; 
+    printSheet.Name = "Resultat"; 
+}
 Excel.Range printRange = printSheet.UsedRange;
 
 printRange.Clear();
