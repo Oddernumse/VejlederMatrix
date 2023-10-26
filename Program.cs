@@ -21,10 +21,14 @@ int arkN = 1;
 ExcelSelect.SelectSheet(xlWorkbook.Sheets, ref arkN, "På hvilket ark ligger dataene?");
 Excel.Worksheet datasheet = xlWorkbook.Worksheets[arkN];
 Excel.Range dataRange = datasheet.UsedRange;
-Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
-int dataColumn1 = Int32.Parse(Console.ReadLine()) - 2;
+int dataColumn1 = dataRange.Rows.Count + 1;
+while (dataColumn1 > dataRange.Rows.Count)
+{
+    Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
+    dataColumn1 = Int32.Parse(Console.ReadLine());
+}
 
-for(i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærere.Count == 0 ; i++)
+for(i = 1; i < dataRange.Rows.Count; i++)
 {
     object lærer1 = dataRange.Cells[i, dataColumn1].Value2;
     if (lærer1.ToString().Length <= 4)
@@ -33,6 +37,7 @@ for(i = 1; dataRange.Cells[i, dataColumn1].Value2 != null || tilgængeligeLærer
         string mødeString = dataRange.Cells[i, dataColumn1 + 2].Value2.ToString();
         int møder = Int32.Parse(mødeString);
         if (!tilgængeligeLærere.ContainsKey(lærer1.ToString())) tilgængeligeLærere.Add(lærer1.ToString(), true);
+        if (!tilgængeligeLærere.ContainsKey(lærer2.ToString())) tilgængeligeLærere.Add(lærer2.ToString(), true);
         lærerPar.Add(new LærerPar(møder, lærer1.ToString(), lærer2.ToString()));
     }
 }
