@@ -22,18 +22,18 @@ int arkN = 1;
 ExcelSelect.SelectSheet(xlWorkbook.Sheets, ref arkN, "På hvilket ark ligger dataene?");
 Excel.Worksheet datasheet = xlWorkbook.Worksheets[arkN];
 Excel.Range dataRange = datasheet.UsedRange;
-int dataColumn1 = dataRange.Rows.Count + 1;
-while (dataColumn1 > dataRange.Rows.Count)
+int dataCol = dataRange.Rows.Count + 1;
+while (dataCol > dataRange.Rows.Count)
 {
     Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
-    dataColumn1 = Int32.Parse(Console.ReadLine());
+    dataCol = Int32.Parse(Console.ReadLine());
 }
 
-for(i = 1; i < dataRange.Rows.Count; i++)
+for(i = 1; dataRange[i, dataCol].Value2 != null || tilgængeligeLærere.Count == 0; i++)
 {
-    object lærer1 = dataRange.Cells[i, dataColumn1].Value2;
-    object lærer2 = dataRange.Cells[i, dataColumn1 + 1].Value2;
-    object mødeObject = dataRange.Cells[i, dataColumn1 + 2].Value2;
+    object lærer1 = dataRange.Cells[i, dataCol].Value2;
+    object lærer2 = dataRange.Cells[i, dataCol + 1].Value2;
+    object mødeObject = dataRange.Cells[i, dataCol + 2].Value2;
     if (lærer1 != null && lærer2 != null && mødeObject != null && lærer1.ToString().Length <= 5)
     {
         int møder = Int32.Parse(mødeObject.ToString());
