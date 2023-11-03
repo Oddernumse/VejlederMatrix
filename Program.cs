@@ -31,9 +31,9 @@ while (dataCol > dataRange.Rows.Count)
 
 for(i = 1; dataRange[i, dataCol].Value2 != null || tilgængeligeLærere.Count == 0; i++)
 {
-    object lærer1 = dataRange.Cells[i, dataColumn1].Value2;
-    object lærer2 = dataRange.Cells[i, dataColumn1 + 1].Value2;
-    object mødeObject = dataRange.Cells[i, dataColumn1 + 2].Value2;
+    object lærer1 = dataRange.Cells[i, dataCol].Value2;
+    object lærer2 = dataRange.Cells[i, dataCol + 1].Value2;
+    object mødeObject = dataRange.Cells[i, dataCol + 2].Value2;
     if (lærer1 != null && lærer2 != null && mødeObject != null && lærer1.ToString().Length <= 5)
     {
         int møder = Int32.Parse(mødeObject.ToString());
