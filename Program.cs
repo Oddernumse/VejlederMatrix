@@ -8,12 +8,13 @@ Excel.Application xlApp = new Excel.Application();
 string fileName = ExcelSelect.SelectFile("C:\\", "Vælg venligst Excel-filen");
 Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fileName);
 
+
 // -------------- Selve programmet: --------------
 Console.Clear();
 Console.ResetColor();
 int i;
 Dictionary<string, bool> tilgængeligeLærere = new Dictionary<string, bool>();
-List<LærerPar> lærerPar = new List<LærerPar> ();
+List<LærerPar> lærerPar = new List<LærerPar>();
 List<Dictionary<LærerPar, bool>> plan = new List<Dictionary<LærerPar, bool>>();
 
 // Find arket med dataene
@@ -30,34 +31,35 @@ while (dataCol > dataRange.Rows.Count)
 
 for(i = 1; dataRange[i, dataCol].Value2 != null || tilgængeligeLærere.Count == 0; i++)
 {
-    object lærer1 = dataRange.Cells[i, dataCol].Value2;
-    if (lærer1.ToString().Length <= 4)
+    object lærer1 = dataRange.Cells[i, dataColumn1].Value2;
+    object lærer2 = dataRange.Cells[i, dataColumn1 + 1].Value2;
+    object mødeObject = dataRange.Cells[i, dataColumn1 + 2].Value2;
+    if (lærer1 != null && lærer2 != null && mødeObject != null && lærer1.ToString().Length <= 5)
     {
-        object lærer2 = dataRange.Cells[i, dataCol + 1].Value2;
-        string mødeString = dataRange.Cells[i, dataCol + 2].Value2.ToString();
-        int møder = Int32.Parse(mødeString);
+        int møder = Int32.Parse(mødeObject.ToString());
         if (!tilgængeligeLærere.ContainsKey(lærer1.ToString())) tilgængeligeLærere.Add(lærer1.ToString(), true);
         if (!tilgængeligeLærere.ContainsKey(lærer2.ToString())) tilgængeligeLærere.Add(lærer2.ToString(), true);
         lærerPar.Add(new LærerPar(møder, lærer1.ToString(), lærer2.ToString()));
+        Console.WriteLine("Par tilføjet");
     }
 }
 
 // Lav en plan:
 bool planlægning = false;
-for(int blok = 0; !planlægning; blok++)
+for (int blok = 0; !planlægning; blok++)
 {
     planlægning = true;
-    plan.Add(new Dictionary<LærerPar, bool> ());
+    plan.Add(new Dictionary<LærerPar, bool>());
 
     // Gør alle lærere tilgængelige igen:
-    foreach(KeyValuePair<string, bool> pair in tilgængeligeLærere)
+    foreach (KeyValuePair<string, bool> pair in tilgængeligeLærere)
     {
         tilgængeligeLærere[pair.Key] = true;
     }
 
     // Lav en blok
     plan[blok].Clear();
-    while(true)
+    while (true)
     {
         LærerPar prioPar = new LærerPar(-1, "", "");
         foreach (LærerPar par in lærerPar)
@@ -65,7 +67,8 @@ for(int blok = 0; !planlægning; blok++)
             try
             {
                 plan[blok].Add(par, false);
-            } catch
+            }
+            catch
             {
 
             }
@@ -77,7 +80,7 @@ for(int blok = 0; !planlægning; blok++)
                 prioPar = par;
             }
         }
-        if(prioPar.møder == -1) break;
+        if (prioPar.møder == -1) break;
         else
         {
             tilgængeligeLærere[prioPar.lærer1] = false;
@@ -88,18 +91,18 @@ for(int blok = 0; !planlægning; blok++)
     }
 
     // Tjek om alle lærere er blevet tildelt møder:
-    foreach(LærerPar par in lærerPar)
+    foreach (LærerPar par in lærerPar)
     {
-        if(par.møder > 0) planlægning = false;
+        if (par.møder > 0) planlægning = false;
     }
 }
 
 // Print planen:
 Excel.Worksheet printSheet = datasheet;
 bool printExists = false;
-foreach(Excel.Worksheet sheet in xlWorkbook.Sheets)
+foreach (Excel.Worksheet sheet in xlWorkbook.Sheets)
 {
-    if(sheet.Name == "Resultat")
+    if (sheet.Name == "Resultat")
     {
         printExists = true;
         printSheet = sheet;
@@ -109,10 +112,11 @@ foreach(Excel.Worksheet sheet in xlWorkbook.Sheets)
 if (!printExists) { xlWorkbook.Sheets.Add(); int printSheetN = xlWorkbook.Sheets.Count - 1; printSheet = xlWorkbook.Sheets[printSheetN]; printSheet.Name = "Resultat"; }
 Excel.Range printRange = printSheet.UsedRange;
 
-printRange[1, 1].Value = "Vejleder 1:";
-printRange[1, 2].Value = "Vejleder 2:";
+printRange.Clear();
+printRange[2, 1].Value = "Vejleder 1:";
+printRange[2, 2].Value = "Vejleder 2:";
 
-i = 2;
+i = 3;
 foreach (LærerPar par in lærerPar)
 {
     printRange[i, 1].Clear();
@@ -124,15 +128,14 @@ foreach (LærerPar par in lærerPar)
 
 Console.WriteLine("Møder: " + plan.Count);
 
-for(i  = 0; i < plan.Count; i++)
+for (i = 0; i < plan.Count; i++)
 {
-    int row = 2;
-    foreach(LærerPar planpar in plan[i].Keys)
+    int row = 3;
+    foreach (LærerPar planpar in plan[i].Keys)
     {
         if (plan[i][planpar] == true)
         {
-            printRange[row, i + 3].Clear();
-            printRange[row, i + 3].Value = "Optaget";
+            printRange[row, i + 3].Value = "Møde";
         }
         row++;
     }
@@ -141,7 +144,7 @@ for(i  = 0; i < plan.Count; i++)
 // -------------- Prøv at hoppe af appen (DRÆB PLANEN): --------------
 foreach (Excel.Workbook book in xlApp.Workbooks)
 {
-    foreach(Excel.Worksheet sheet in book.Worksheets)
+    foreach (Excel.Worksheet sheet in book.Worksheets)
     {
         Marshal.ReleaseComObject(sheet);
     }
