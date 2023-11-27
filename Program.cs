@@ -166,3 +166,6 @@ foreach (Excel.Workbook book in xlApp.Workbooks)
 }
 xlApp.Quit();
 Marshal.ReleaseComObject(xlApp);
+
+Console.WriteLine("Tryk på en knap for at afslutte programmet");
+Console.ReadKey();
