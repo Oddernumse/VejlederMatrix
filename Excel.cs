@@ -2,20 +2,30 @@
 {
     public static class Funcs
     {
-        public static string SelectFile(string currentDir, string message)
+        public static string SelectFile(string currentDir, string message, string fileType = ".txt")
         {
             List<string> previousDir = new List<string>();
             List<string> options = new List<string>();
             int n = 0;
             string path;
             Console.CursorVisible = false;
+            bool newDir = true;
             while (true)
             {
+                List<string> dirs = Directory.GetDirectories(currentDir).ToList();
+                List<string> files = Directory.GetFiles(currentDir).ToList();
+                List<string> remove = new List<string>();
+                foreach(string file in files)
+                {
+                    if (!file.Contains(fileType)) remove.Add(file);
+                }
+                foreach(string item in remove)
+                {
+                    files.Remove(item);
+                }
                 options.Clear();
-                string[] dirs = Directory.GetDirectories(currentDir);
-                string[] files = Directory.GetFiles(currentDir);
-                options.AddRange(dirs);
-                options.AddRange(files);
+                options.AddRange(dirs.ToArray());
+                options.AddRange(files.ToArray());
                 Console.Clear();
                 Console.WriteLine(message + "\n");
                 foreach (string option in options)
@@ -23,8 +33,9 @@
                     if (option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
                     Console.WriteLine(option.Replace(currentDir, ""));
                     Console.ResetColor();
-
+                    if (newDir == true) Thread.Sleep(2);
                 }
+                newDir = false;
                 ConsoleKey input = Console.ReadKey().Key;
                 switch (input)
                 {
@@ -34,8 +45,8 @@
                     case ConsoleKey.RightArrow: n = options.Count - 1; break;
 
                     case ConsoleKey.Enter: 
-                        string end = options[n].Substring(options[n].Length - 4);
-                        if(end == "xlsx")
+                        string end = options[n].Substring(options[n].Length - fileType.Length);
+                        if(end == fileType)
                         {
                             path = options[n];
                             Console.CursorVisible = true;
@@ -48,6 +59,7 @@
                                 previousDir.Add(currentDir);
                                 currentDir = options[n];
                                 n = 0;
+                                newDir = true;
                             }
                         }
                         break;

@@ -1,30 +1,114 @@
 public static void SelectSheet(Sheets options, ref int n, string message)
+{
+    if (n < 1 || n > options.Count) n = 1;
+    Console.CursorVisible = false;
+    while (true)
+    {
+        Console.Clear();
+        Console.WriteLine(message + "\n");
+        foreach (Worksheet option in options)
         {
-            if (n < 1 || n > options.Count) n = 1;
-            Console.CursorVisible = false;
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine(message + "\n");
-                foreach (Worksheet option in options)
-                {
-                    if(option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
-                    Console.WriteLine(option.Name);
-                    Console.ResetColor();
+            if(option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
+            Console.WriteLine(option.Name);
+            Console.ResetColor();
 
-                }
-                ConsoleKey input = Console.ReadKey().Key;
-                if(input == ConsoleKey.Enter)
-                {
-                    Console.CursorVisible = true;
-                    break;
-                }
-                switch(input)
-                {
-                    case ConsoleKey.UpArrow: if(n > 1) n--; break;
-                    case ConsoleKey.DownArrow: if(n < options.Count) n++; break;
-                    case ConsoleKey.LeftArrow: n = 1; break;
-                    case ConsoleKey.RightArrow: n = options.Count; break;
-                }
-            }
         }
+        ConsoleKey input = Console.ReadKey().Key;
+        if(input == ConsoleKey.Enter)
+        {
+            Console.CursorVisible = true;
+            break;
+        }
+        switch(input)
+        {
+            case ConsoleKey.UpArrow: if(n > 1) n--; break;
+            case ConsoleKey.DownArrow: if(n < options.Count) n++; break;
+            case ConsoleKey.LeftArrow: n = 1; break;
+            case ConsoleKey.RightArrow: n = options.Count; break;
+        }
+    }
+}
+
+// Find arket med dataene
+int arkN = 1;
+ExcelSelect.SelectSheet(xlWorkbook.Sheets, ref arkN, "På hvilket ark ligger dataene?");
+Excel.Worksheet datasheet = xlWorkbook.Worksheets[arkN];
+Excel.Range dataRange = datasheet.UsedRange;
+int dataCol = dataRange.Rows.Count + 1;
+while (dataCol > dataRange.Rows.Count)
+{
+    Console.WriteLine("\nOg i hvilken kolonne (nr.) findes den første række vejledere?");
+    dataCol = Int32.Parse(Console.ReadLine());
+}
+
+for (i = 1; dataRange[i, dataCol].Value2 != null || tilgængeligeLærere.Count == 0; i++)
+{
+    object lærer1 = dataRange.Cells[i, dataCol].Value2;
+    object lærer2 = dataRange.Cells[i, dataCol + 1].Value2;
+    object mødeObject = dataRange.Cells[i, dataCol + 2].Value2;
+    if (lærer1 != null && lærer2 != null && mødeObject != null && lærer1.ToString().Length <= 5)
+    {
+        int møder = Int32.Parse(mødeObject.ToString());
+        if (!tilgængeligeLærere.ContainsKey(lærer1.ToString())) tilgængeligeLærere.Add(lærer1.ToString(), true);
+        if (!tilgængeligeLærere.ContainsKey(lærer2.ToString())) tilgængeligeLærere.Add(lærer2.ToString(), true);
+        lærerPar.Add(new LærerPar(møder, lærer1.ToString(), lærer2.ToString()));
+    }
+}
+
+// Print planen:
+Excel.Worksheet printSheet = datasheet;
+bool printExists = false;
+foreach (Excel.Worksheet sheet in xlWorkbook.Sheets)
+{
+    if (sheet.Name == "Resultat")
+    {
+        printExists = true;
+        printSheet = sheet;
+        break;
+    }
+}
+if (!printExists)
+{
+    xlWorkbook.Sheets.Add();
+    int printSheetN = 0;
+    foreach (Excel.Worksheet sheet in xlWorkbook.Sheets)
+    {
+        if (sheet.Name.StartsWith("Ark") || sheet.Name.StartsWith("Sheet"))
+        {
+            break;
+        }
+        printSheetN++;
+    }
+    printSheet = xlWorkbook.Sheets[printSheetN + 1];
+    printSheet.Name = "Resultat";
+}
+Excel.Range printRange = printSheet.UsedRange;
+
+printRange.Clear();
+printRange[2, 1].Value = "Vejleder 1:";
+printRange[2, 2].Value = "Vejleder 2:";
+
+i = 3;
+foreach (LærerPar pair in pairs)
+{
+    printRange[i, 1].Clear();
+    printRange[i, 1] = pair.lærer1;
+    printRange[i, 2].Clear();
+    printRange[i, 2] = pair.lærer2;
+    i++;
+}
+
+Console.WriteLine("Møder: " + plan.Count);
+
+for (i = 0; i < plan.Count; i++)
+{
+    int row = 3;
+    foreach (LærerPar planpair in plan[i].Keys)
+    {
+        if (plan[i][planpair] == true)
+        {
+            printRange[row, i + 3].Value = "Møde";
+        }
+        row++;
+    }
+}
