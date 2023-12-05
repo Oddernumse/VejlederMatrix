@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VejlederMatrix", "VejlederMatrix.csproj", "{515D2BE7-FA83-4489-9200-5CD7596B1012}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "VejlederFordeler", "..\VejlederFordeler\VejlederFordeler\VejlederFordeler.vdproj", "{FBF373D1-B047-4A4E-A7A3-FF20511578EF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,8 +15,6 @@ Global
 		{515D2BE7-FA83-4489-9200-5CD7596B1012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{515D2BE7-FA83-4489-9200-5CD7596B1012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{515D2BE7-FA83-4489-9200-5CD7596B1012}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FBF373D1-B047-4A4E-A7A3-FF20511578EF}.Debug|Any CPU.ActiveCfg = Debug
-		{FBF373D1-B047-4A4E-A7A3-FF20511578EF}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

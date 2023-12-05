@@ -1,53 +1,7 @@
-﻿using Microsoft.Office.Interop.Excel;
-
-namespace ExcelSpace {
-    public class LærerPar
-    {
-        public int møder;
-        public string lærer1;
-        public string lærer2;
-        public LærerPar(int møder, string lærer1, string lærer2)
-        {
-            this.møder = møder;
-            this.lærer1 = lærer1;
-            this.lærer2 = lærer2;
-        }
-    }
-}
-namespace Select
+﻿namespace PseudoExcelReader
 {
-    public static class ExcelSelect
+    public static class Funcs
     {
-        public static void SelectSheet(Sheets options, ref int n, string message)
-        {
-            if (n < 1 || n > options.Count) n = 1;
-            Console.CursorVisible = false;
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine(message + "\n");
-                foreach (Worksheet option in options)
-                {
-                    if(option == options[n]) { Console.BackgroundColor = ConsoleColor.White; Console.ForegroundColor = ConsoleColor.Black; }
-                    Console.WriteLine(option.Name);
-                    Console.ResetColor();
-
-                }
-                ConsoleKey input = Console.ReadKey().Key;
-                if(input == ConsoleKey.Enter)
-                {
-                    Console.CursorVisible = true;
-                    break;
-                }
-                switch(input)
-                {
-                    case ConsoleKey.UpArrow: if(n > 1) n--; break;
-                    case ConsoleKey.DownArrow: if(n < options.Count) n++; break;
-                    case ConsoleKey.LeftArrow: n = 1; break;
-                    case ConsoleKey.RightArrow: n = options.Count; break;
-                }
-            }
-        }
         public static string SelectFile(string currentDir, string message)
         {
             List<string> previousDir = new List<string>();
@@ -109,5 +63,35 @@ namespace Select
                 }
             }
         }
+
+        public static List<LærerPar> GetPairs(string path)
+        {
+            List<LærerPar> lærerPar = new List<LærerPar> ();
+            lærerPar.Clear();
+            string content = File.ReadAllText(path);
+            List<string> rows = content.Split('\n').ToList<string>();
+            List<List<string>> cols = new List<List<string>>();
+            foreach (string row in rows)
+            {
+                string[] col = row.Split('\t');
+                lærerPar.Add(new LærerPar(Int32.Parse(col[2].Trim()), col[0], col[1]));
+            }
+            return lærerPar;
+        }
+    }
+
+    public class LærerPar
+    {
+        public int møder;
+        public string lærer1;
+        public string lærer2;
+        public LærerPar(int møder, string lærer1, string lærer2)
+        {
+            this.møder = møder;
+            this.lærer1 = lærer1;
+            this.lærer2 = lærer2;
+        }
+        public LærerPar() { }
+        
     }
 }
